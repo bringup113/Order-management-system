@@ -1,0 +1,12 @@
+{
+  "name": "order-management-starter",
+  "version": "1.0.0",
+  "description": "订单管理系统启动脚本",
+  "main": "start-services.js",
+  "scripts": {
+    "start": "node start-services.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
+} 
