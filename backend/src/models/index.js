@@ -51,10 +51,38 @@ const Payment = require('./payment.model')(sequelize);
 const Config = require('./config.model')(sequelize);
 const OperationLog = require('./operationLog.model')(sequelize);
 
+// 创建模型对象
+const models = {
+  User,
+  Role,
+  Permission,
+  Passport,
+  Visa,
+  Supplier,
+  Agent,
+  Product,
+  ProductQuote,
+  AgentProductPrice,
+  Order,
+  OrderItem,
+  Invoice,
+  InvoiceOrder,
+  Payment,
+  Config,
+  OperationLog
+};
+
+// 调用模型的associate方法设置关联关系
+Object.keys(models).forEach(modelName => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
+});
+
 // 定义模型之间的关联关系
-// 用户和角色的多对多关系
-User.belongsToMany(Role, { through: 'UserRoles', foreignKey: 'userId' });
-Role.belongsToMany(User, { through: 'UserRoles', foreignKey: 'roleId' });
+// 注意：用户和角色的关联关系已经在User.associate方法中定义，这里不需要重复定义
+// User.belongsTo(Role, { foreignKey: 'roleId', as: 'role' });
+// Role.hasMany(User, { foreignKey: 'roleId', as: 'users' });
 
 // 角色和权限的多对多关系
 Role.belongsToMany(Permission, { through: 'RolePermissions', foreignKey: 'roleId' });
@@ -164,4 +192,4 @@ module.exports = {
   Payment,
   Config,
   OperationLog
-}; 
+};

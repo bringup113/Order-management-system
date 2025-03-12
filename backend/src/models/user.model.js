@@ -23,11 +23,14 @@ module.exports = (sequelize) => {
       allowNull: false,
       comment: '姓名'
     },
-    role: {
-      type: DataTypes.ENUM('admin', 'user', 'supplier'),
+    roleId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 'user',
-      comment: '角色（管理员/普通用户/供应商）'
+      comment: '角色ID（关联角色表）',
+      references: {
+        model: 'roles',
+        key: 'id'
+      }
     },
     status: {
       type: DataTypes.ENUM('enabled', 'disabled'),
@@ -39,6 +42,11 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       allowNull: true,
       comment: '最后登录时间'
+    },
+    remarks: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: '备注'
     }
   }, {
     tableName: 'user',
@@ -46,6 +54,14 @@ module.exports = (sequelize) => {
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   });
+
+  // 定义关联关系
+  User.associate = (models) => {
+    User.belongsTo(models.Role, {
+      foreignKey: 'roleId',
+      as: 'role'
+    });
+  };
 
   return User;
 };

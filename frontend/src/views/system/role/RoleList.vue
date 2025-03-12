@@ -183,6 +183,7 @@ import {
 } from '@/api/system'
 import { getPermissionList } from '@/api/system'
 import { handleListResponse } from '@/utils/api-adapter'
+import eventBus, { EVENTS } from '@/utils/eventBus'
 
 export default {
   name: 'RoleList',
@@ -492,6 +493,8 @@ export default {
           await updateRole(row.id, { status: newStatus })
           ElMessage.success(`${statusText}成功`)
           fetchRoleList()
+          // 发布角色列表更新事件
+          eventBus.emit(EVENTS.ROLE_LIST_UPDATED)
         } catch (error) {
           console.error(`${statusText}角色失败:`, error)
           ElMessage.error(`${statusText}角色失败`)
@@ -519,9 +522,16 @@ export default {
           await deleteRole(row.id)
           ElMessage.success('删除成功')
           fetchRoleList()
+          // 发布角色列表更新事件
+          eventBus.emit(EVENTS.ROLE_LIST_UPDATED)
         } catch (error) {
           console.error('删除角色失败:', error)
-          ElMessage.error('删除角色失败')
+          // 处理后端返回的错误信息
+          if (error.response && error.response.data && error.response.data.message) {
+            ElMessage.error(error.response.data.message)
+          } else {
+            ElMessage.error('删除角色失败')
+          }
         }
       }).catch(() => {})
     }
@@ -558,6 +568,8 @@ export default {
             
             dialogVisible.value = false
             fetchRoleList()
+            // 发布角色列表更新事件
+            eventBus.emit(EVENTS.ROLE_LIST_UPDATED)
           } catch (error) {
             console.error('保存角色失败:', error)
             ElMessage.error('保存角色失败')

@@ -172,6 +172,17 @@ exports.deleteRole = async (req, res) => {
       });
     }
     
+    // 检查是否有用户正在使用该角色
+    const User = db.User;
+    const usersWithRole = await User.count({ where: { roleId: id } });
+    
+    if (usersWithRole > 0) {
+      return res.status(400).json({
+        code: 400,
+        message: `该角色下有${usersWithRole}个用户，无法删除。请先将用户移至其他角色后再删除。`
+      });
+    }
+    
     // 删除角色
     await role.destroy();
     
@@ -195,9 +206,7 @@ exports.getRolePermissions = async (req, res) => {
     const { id } = req.params;
     
     // 查询角色是否存在
-    const role = await Role.findByPk(id, {
-      include: [{ model: Permission, as: 'permissions' }]
-    });
+    const role = await Role.findByPk(id);
     
     if (!role) {
       return res.status(404).json({
@@ -206,10 +215,16 @@ exports.getRolePermissions = async (req, res) => {
       });
     }
     
+    // 使用关联查询获取角色权限
+    const permissions = await role.getPermissions();
+    
+    // 提取权限ID列表
+    const permissionIds = permissions.map(permission => permission.id);
+    
     return res.status(200).json({
       code: 200,
       message: '获取角色权限成功',
-      data: role.permissions || []
+      data: permissionIds
     });
   } catch (error) {
     console.error('获取角色权限失败:', error);

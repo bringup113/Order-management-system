@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { User } = require('../models');
+const { User, Role } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -29,11 +29,18 @@ exports.getUsers = async (req, res) => {
       where.status = status;
     }
     
-    // 查询用户
+    // 查询用户，包含角色信息
     const { count, rows } = await User.findAndCountAll({
       where,
       attributes: { exclude: ['password'] },
-      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['id', 'name', 'code']
+        }
+      ],
+      order: [['created_at', 'DESC']],
       offset: parseInt(offset),
       limit: parseInt(limit)
     });
@@ -60,9 +67,16 @@ exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // 查询用户
+    // 查询用户，包含角色信息
     const user = await User.findByPk(id, {
-      attributes: { exclude: ['password'] }
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['id', 'name', 'code']
+        }
+      ]
     });
     
     if (!user) {
@@ -92,13 +106,22 @@ exports.getUserById = async (req, res) => {
  */
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, name, email, phone, roleId } = req.body;
+    const { username, password, name, roleId, status, remarks } = req.body;
     
     // 验证必填字段
     if (!username || !password || !name) {
       return res.status(400).json({
         code: 400,
         message: '用户名、密码和姓名不能为空'
+      });
+    }
+    
+    // 验证用户名格式
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({
+        code: 400,
+        message: '用户名只能包含英文字母、数字和下划线'
       });
     }
     
@@ -115,15 +138,24 @@ exports.createUser = async (req, res) => {
     // 加密密码
     const hashedPassword = bcrypt.hashSync(password, 8);
     
+    // 验证roleId是否有效
+    if (!roleId) {
+      return res.status(400).json({
+        code: 400,
+        message: '角色ID不能为空'
+      });
+    }
+    
+    console.log(`创建用户，roleId: ${roleId}`);
+    
     // 创建用户
     const user = await User.create({
       username,
       password: hashedPassword,
       name,
-      email,
-      phone,
       roleId,
-      status: 'active'
+      status: status || 'enabled',
+      remarks
     });
     
     return res.status(201).json({
@@ -133,8 +165,6 @@ exports.createUser = async (req, res) => {
         id: user.id,
         username: user.username,
         name: user.name,
-        email: user.email,
-        phone: user.phone,
         roleId: user.roleId,
         status: user.status,
         createdAt: user.createdAt
@@ -156,7 +186,7 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, roleId } = req.body;
+    const { name, password, roleId, status, remarks } = req.body;
     
     // 查询用户
     const user = await User.findByPk(id);
@@ -168,13 +198,25 @@ exports.updateUser = async (req, res) => {
       });
     }
     
-    // 更新用户
-    await user.update({
+    console.log(`更新用户，roleId: ${roleId}`);
+    
+    // 准备更新数据
+    const updateData = {
       name: name || user.name,
-      email: email !== undefined ? email : user.email,
-      phone: phone !== undefined ? phone : user.phone,
-      roleId: roleId || user.roleId
-    });
+      roleId: roleId || user.roleId,
+      status: status || user.status,
+      remarks: remarks !== undefined ? remarks : user.remarks
+    };
+    
+    // 如果提供了密码，则更新密码
+    if (password) {
+      // 加密密码
+      const hashedPassword = bcrypt.hashSync(password, 8);
+      updateData.password = hashedPassword;
+    }
+    
+    // 更新用户
+    await user.update(updateData);
     
     return res.status(200).json({
       code: 200,
@@ -183,8 +225,6 @@ exports.updateUser = async (req, res) => {
         id: user.id,
         username: user.username,
         name: user.name,
-        email: user.email,
-        phone: user.phone,
         roleId: user.roleId,
         status: user.status,
         lastLoginTime: user.lastLoginTime,
@@ -301,10 +341,10 @@ exports.updateUserStatus = async (req, res) => {
     const { status } = req.body;
     
     // 验证必填字段
-    if (!status || !['active', 'inactive'].includes(status)) {
+    if (!status || !['enabled', 'disabled'].includes(status)) {
       return res.status(400).json({
         code: 400,
-        message: '状态值无效，必须是 active 或 inactive'
+        message: '状态值无效，必须是 enabled 或 disabled'
       });
     }
     
@@ -319,7 +359,7 @@ exports.updateUserStatus = async (req, res) => {
     }
     
     // 检查是否是管理员账号
-    if (user.username === 'admin' && status === 'inactive') {
+    if (user.username === 'admin' && status === 'disabled') {
       return res.status(400).json({
         code: 400,
         message: '不能禁用管理员账号'

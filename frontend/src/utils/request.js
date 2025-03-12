@@ -36,8 +36,8 @@ service.interceptors.response.use(
     const res = response.data
     console.log('响应数据:', res);
     
-    // 如果自定义代码不是200，则判断为错误
-    if (res.code !== 200 && res.code !== undefined) {
+    // 如果自定义代码不是200或201，则判断为错误
+    if (res.code !== 200 && res.code !== 201 && res.code !== undefined) {
       ElMessage({
         message: res.message || '请求失败',
         type: 'error',
