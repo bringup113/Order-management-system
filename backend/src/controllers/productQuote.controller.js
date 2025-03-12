@@ -6,18 +6,18 @@ const { Op } = require('sequelize');
  */
 exports.getProductQuotes = async (req, res) => {
   try {
-    const { page = 1, limit = 10, product_id, supplier_id } = req.query;
+    const { page = 1, limit = 10, productId, supplierId } = req.query;
     const offset = (page - 1) * limit;
     
     // 构建查询条件
     const where = {};
     
-    if (product_id) {
-      where.product_id = product_id;
+    if (productId) {
+      where.productId = productId;
     }
     
-    if (supplier_id) {
-      where.supplier_id = supplier_id;
+    if (supplierId) {
+      where.supplierId = supplierId;
     }
     
     // 查询产品报价
@@ -33,7 +33,7 @@ exports.getProductQuotes = async (req, res) => {
           attributes: ['id', 'name']
         }
       ],
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -93,10 +93,10 @@ exports.getProductQuoteById = async (req, res) => {
  */
 exports.createProductQuote = async (req, res) => {
   try {
-    const { product_id, supplier_id, cost_price, remarks } = req.body;
+    const { productId, supplierId, cost_price, remarks } = req.body;
     
     // 检查产品是否存在
-    const product = await Product.findByPk(product_id);
+    const product = await Product.findByPk(productId);
     
     if (!product) {
       return res.status(404).json({
@@ -105,7 +105,7 @@ exports.createProductQuote = async (req, res) => {
     }
     
     // 检查供应商是否存在
-    const supplier = await Supplier.findByPk(supplier_id);
+    const supplier = await Supplier.findByPk(supplierId);
     
     if (!supplier) {
       return res.status(404).json({
@@ -116,8 +116,8 @@ exports.createProductQuote = async (req, res) => {
     // 检查是否已存在相同的产品和供应商组合
     const existingQuote = await ProductQuote.findOne({
       where: {
-        product_id,
-        supplier_id
+        productId,
+        supplierId
       }
     });
     
@@ -129,8 +129,8 @@ exports.createProductQuote = async (req, res) => {
     
     // 创建产品报价
     const productQuote = await ProductQuote.create({
-      product_id,
-      supplier_id,
+      productId,
+      supplierId,
       cost_price,
       remarks
     });

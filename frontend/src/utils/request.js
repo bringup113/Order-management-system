@@ -3,7 +3,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import store from '@/store'
 import router from '@/router'
 import { handleErrorResponse } from './api-adapter'
-import { namingConvention } from './naming'
 
 // 创建axios实例
 const service = axios.create({
@@ -20,17 +19,6 @@ service.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${store.getters.token}`
     }
     
-    // 转换请求数据的命名规范（驼峰转下划线）
-    if (config.data && typeof config.data === 'object') {
-      config.data = namingConvention.toBackend(config.data)
-    }
-    
-    // 转换查询参数的命名规范
-    if (config.params && typeof config.params === 'object') {
-      config.params = namingConvention.toBackend(config.params)
-    }
-    
-    // 添加调试日志
     console.log('请求配置:', config)
     
     return config
@@ -46,29 +34,27 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
+    console.log('响应数据:', res);
     
-    // 转换响应数据的命名规范（下划线转驼峰）
-    const transformedData = namingConvention.fromBackend(res)
-
     // 如果自定义代码不是200，则判断为错误
-    if (transformedData.code !== 200 && transformedData.code !== undefined) {
+    if (res.code !== 200 && res.code !== undefined) {
       ElMessage({
-        message: transformedData.message || '请求失败',
+        message: res.message || '请求失败',
         type: 'error',
         duration: 5 * 1000
       })
 
       // 401: 未登录或token过期
-      if (transformedData.code === 401) {
+      if (res.code === 401) {
         // 直接清除用户信息并重定向到登录页面
         store.dispatch('logout').then(() => {
           // 重新加载页面以避免路由守卫问题
           router.push('/login')
         })
       }
-      return Promise.reject(new Error(transformedData.message || '请求失败'))
+      return Promise.reject(new Error(res.message || '请求失败'))
     } else {
-      return transformedData
+      return res
     }
   },
   error => {

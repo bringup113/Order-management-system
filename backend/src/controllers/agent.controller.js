@@ -26,7 +26,7 @@ exports.getAgents = async (req, res) => {
     // 查询代理
     const { count, rows } = await Agent.findAndCountAll({
       where,
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -130,7 +130,7 @@ exports.deleteAgent = async (req, res) => {
     }
     
     // 检查是否有关联的代理产品价格
-    const priceCount = await AgentProductPrice.count({ where: { agent_id: id } });
+    const priceCount = await AgentProductPrice.count({ where: { agentId: id } });
     
     if (priceCount > 0) {
       return res.error('无法删除代理，存在关联的代理产品价格');

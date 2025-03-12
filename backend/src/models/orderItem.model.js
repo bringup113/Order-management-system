@@ -7,12 +7,12 @@ module.exports = (sequelize) => {
       primaryKey: true,
       autoIncrement: true
     },
-    order_id: {
+    orderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '订单ID'
     },
-    product_id: {
+    productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '产品ID'

@@ -36,18 +36,18 @@ const generateOrderNo = async () => {
  */
 exports.getOrders = async (req, res) => {
   try {
-    const { page = 1, limit = 10, passport_id, agent_id, order_status, payment_status, start_date, end_date, search } = req.query;
+    const { page = 1, limit = 10, passportId, agentId, order_status, payment_status, start_date, end_date, search } = req.query;
     const offset = (page - 1) * limit;
     
     // 构建查询条件
     const where = {};
     
-    if (passport_id) {
-      where.customerId = passport_id;
+    if (passportId) {
+      where.customerId = passportId;
     }
     
-    if (agent_id) {
-      where.agentId = agent_id;
+    if (agentId) {
+      where.agentId = agentId;
     }
     
     if (order_status) {
@@ -85,7 +85,7 @@ exports.getOrders = async (req, res) => {
         {
           model: Passport,
           as: 'customer',
-          attributes: ['id', 'name', 'passport_no']
+          attributes: ['id', 'name', 'passportNo']
         },
         {
           model: Agent,
@@ -98,7 +98,7 @@ exports.getOrders = async (req, res) => {
           attributes: ['id', 'name']
         }
       ],
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -123,7 +123,7 @@ exports.getOrderById = async (req, res) => {
         {
           model: Passport,
           as: 'customer',
-          attributes: ['id', 'name', 'passport_no', 'nationality']
+          attributes: ['id', 'name', 'passportNo', 'nationality']
         },
         {
           model: Agent,
@@ -172,11 +172,11 @@ exports.createOrder = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    const { passport_id, agent_id, order_date, remarks, items } = req.body;
+    const { passportId, agentId, order_date, remarks, items } = req.body;
     const userId = req.userId;
     
     // 检查护照是否存在
-    const passport = await Passport.findByPk(passport_id);
+    const passport = await Passport.findByPk(passportId);
     
     if (!passport) {
       await transaction.rollback();
@@ -184,7 +184,7 @@ exports.createOrder = async (req, res) => {
     }
     
     // 检查代理是否存在
-    const agent = await Agent.findByPk(agent_id);
+    const agent = await Agent.findByPk(agentId);
     
     if (!agent) {
       await transaction.rollback();
@@ -209,8 +209,8 @@ exports.createOrder = async (req, res) => {
     // 创建订单
     const order = await Order.create({
       order_no: orderNo,
-      customerId: passport_id,
-      agentId: agent_id,
+      customerId: passportId,
+      agentId: agentId,
       total_amount: totalAmount,
       order_status: 'pending',
       payment_status: 'unpaid',
@@ -222,11 +222,11 @@ exports.createOrder = async (req, res) => {
     // 创建订单明细
     for (const item of items) {
       // 检查产品是否存在
-      const product = await Product.findByPk(item.product_id);
+      const product = await Product.findByPk(item.productId);
       
       if (!product) {
         await transaction.rollback();
-        return res.notFound(`产品ID ${item.product_id} 不存在`);
+        return res.notFound(`产品ID ${item.productId} 不存在`);
       }
       
       // 检查产品报价是否存在
@@ -247,8 +247,8 @@ exports.createOrder = async (req, res) => {
       
       // 创建订单明细
       await OrderItem.create({
-        order_id: order.id,
-        product_id: item.product_id,
+        orderId: order.id,
+        productId: item.productId,
         product_quote_id: item.product_quote_id,
         agent_product_price_id: item.agent_product_price_id,
         quantity: item.quantity,

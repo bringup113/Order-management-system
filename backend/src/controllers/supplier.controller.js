@@ -26,7 +26,7 @@ exports.getSuppliers = async (req, res) => {
     // 查询供应商
     const { count, rows } = await Supplier.findAndCountAll({
       where,
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -130,7 +130,7 @@ exports.deleteSupplier = async (req, res) => {
     }
     
     // 检查是否有关联的产品报价
-    const quoteCount = await ProductQuote.count({ where: { supplier_id: id } });
+    const quoteCount = await ProductQuote.count({ where: { supplierId: id } });
     
     if (quoteCount > 0) {
       return res.error('无法删除供应商，存在关联的产品报价');

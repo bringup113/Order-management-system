@@ -13,12 +13,12 @@ module.exports = (sequelize) => {
       unique: true,
       comment: '订单编号'
     },
-    passport_id: {
+    passportId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '客户ID（护照ID）'
     },
-    agent_id: {
+    agentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '代理ID'

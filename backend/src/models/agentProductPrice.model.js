@@ -12,7 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       comment: '产品报价ID'
     },
-    agent_id: {
+    agentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '代理ID'

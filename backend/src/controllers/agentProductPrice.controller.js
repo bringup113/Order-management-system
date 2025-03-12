@@ -6,14 +6,14 @@ const { Op } = require('sequelize');
  */
 exports.getAgentProductPrices = async (req, res) => {
   try {
-    const { page = 1, limit = 10, agent_id, product_quote_id } = req.query;
+    const { page = 1, limit = 10, agentId, product_quote_id } = req.query;
     const offset = (page - 1) * limit;
     
     // 构建查询条件
     const where = {};
     
-    if (agent_id) {
-      where.agent_id = agent_id;
+    if (agentId) {
+      where.agentId = agentId;
     }
     
     if (product_quote_id) {
@@ -42,7 +42,7 @@ exports.getAgentProductPrices = async (req, res) => {
           attributes: ['id', 'name']
         }
       ],
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -111,7 +111,7 @@ exports.getAgentProductPriceById = async (req, res) => {
  */
 exports.createAgentProductPrice = async (req, res) => {
   try {
-    const { product_quote_id, agent_id, cost_price, selling_price, remarks } = req.body;
+    const { product_quote_id, agentId, cost_price, selling_price, remarks } = req.body;
     
     // 检查产品报价是否存在
     const productQuote = await ProductQuote.findByPk(product_quote_id);
@@ -123,7 +123,7 @@ exports.createAgentProductPrice = async (req, res) => {
     }
     
     // 检查代理是否存在
-    const agent = await Agent.findByPk(agent_id);
+    const agent = await Agent.findByPk(agentId);
     
     if (!agent) {
       return res.status(404).json({
@@ -135,7 +135,7 @@ exports.createAgentProductPrice = async (req, res) => {
     const existingPrice = await AgentProductPrice.findOne({
       where: {
         product_quote_id,
-        agent_id
+        agentId
       }
     });
     
@@ -148,7 +148,7 @@ exports.createAgentProductPrice = async (req, res) => {
     // 创建代理产品价格
     const agentProductPrice = await AgentProductPrice.create({
       product_quote_id,
-      agent_id,
+      agentId,
       cost_price,
       selling_price,
       remarks

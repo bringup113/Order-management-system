@@ -11,13 +11,13 @@
     <el-card class="detail-container" v-loading="loading">
       <el-descriptions title="基本信息" :column="2" border>
         <el-descriptions-item label="客户姓名">{{ passportInfo.name }}</el-descriptions-item>
-        <el-descriptions-item label="护照号码">{{ passportInfo.passportNo }}</el-descriptions-item>
+        <el-descriptions-item label="护照号码">{{ passportInfo.passport_no }}</el-descriptions-item>
         <el-descriptions-item label="国籍">{{ passportInfo.nationality }}</el-descriptions-item>
         <el-descriptions-item label="性别">{{ passportInfo.gender === 'male' ? '男' : '女' }}</el-descriptions-item>
-        <el-descriptions-item label="出生日期">{{ passportInfo.birthDate }}</el-descriptions-item>
-        <el-descriptions-item label="签发日期">{{ passportInfo.issueDate }}</el-descriptions-item>
-        <el-descriptions-item label="有效期至">{{ passportInfo.expiryDate }}</el-descriptions-item>
-        <el-descriptions-item label="备注" :span="2">{{ passportInfo.remark || '无' }}</el-descriptions-item>
+        <el-descriptions-item label="出生日期">{{ passportInfo.birth_date }}</el-descriptions-item>
+        <el-descriptions-item label="签发日期">{{ passportInfo.issue_date }}</el-descriptions-item>
+        <el-descriptions-item label="有效期至">{{ passportInfo.expiry_date }}</el-descriptions-item>
+        <el-descriptions-item label="备注" :span="2">{{ passportInfo.remarks || '无' }}</el-descriptions-item>
       </el-descriptions>
     </el-card>
 
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch, onActivated } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPassportDetail } from '@/api/passport'
@@ -77,35 +77,64 @@ export default {
     const passportInfo = reactive({
       id: null,
       name: '',
-      passportNo: '',
+      passport_no: '',
       nationality: '',
       gender: '',
-      birthDate: '',
-      issueDate: '',
-      expiryDate: '',
-      remark: ''
+      birth_date: '',
+      issue_date: '',
+      expiry_date: '',
+      remarks: ''
     })
     const visaList = ref([])
 
     // 获取护照详情
     const getDetail = (id) => {
+      // 重置护照信息，避免显示上一个护照的数据
+      Object.assign(passportInfo, {
+        id: null,
+        name: '',
+        passport_no: '',
+        nationality: '',
+        gender: '',
+        birth_date: '',
+        issue_date: '',
+        expiry_date: '',
+        remarks: ''
+      })
+      
       loading.value = true
       getPassportDetail(id)
         .then(response => {
           const result = handleDetailResponse(response)
-          passportInfo.id = result.id
-          passportInfo.name = result.name
-          passportInfo.passportNo = result.passport_no
-          passportInfo.nationality = result.nationality
-          passportInfo.gender = result.gender
-          passportInfo.birthDate = result.birth_date
-          passportInfo.issueDate = result.issue_date
-          passportInfo.expiryDate = result.expiry_date
-          passportInfo.remark = result.remarks
+          console.log('获取到的护照详情:', result)
+          if (result && result.id) {
+            passportInfo.id = result.id
+            passportInfo.name = result.name
+            passportInfo.passport_no = result.passport_no
+            passportInfo.nationality = result.nationality
+            passportInfo.gender = result.gender
+            passportInfo.birth_date = result.birth_date
+            passportInfo.issue_date = result.issue_date
+            passportInfo.expiry_date = result.expiry_date
+            passportInfo.remarks = result.remarks
+            
+            // 获取签证列表
+            getVisaList(id)
+          } else {
+            console.error('护照详情数据无效')
+            ElMessage.warning('护照数据无效或已被删除')
+            setTimeout(() => {
+              router.push('/customer/passport/list')
+            }, 1500)
+          }
         })
         .catch(error => {
           console.error('获取护照详情失败', error)
-          ElMessage.error('获取护照详情失败')
+          // 不显示错误提示，直接跳转到护照列表页面
+          console.log('护照可能不存在，跳转到列表页')
+          setTimeout(() => {
+            router.push('/customer/passport/list')
+          }, 500)
         })
         .finally(() => {
           loading.value = false
@@ -114,6 +143,9 @@ export default {
 
     // 获取签证列表
     const getVisaList = (passportId) => {
+      // 重置签证列表，避免显示上一个护照的签证
+      visaList.value = []
+      
       visaLoading.value = true
       getVisasByPassportId(passportId)
         .then(response => {
@@ -139,7 +171,8 @@ export default {
         })
         .catch(error => {
           console.error('获取签证列表失败', error)
-          ElMessage.error('获取签证列表失败')
+          // 获取签证列表失败不影响护照详情的显示，只在控制台记录错误
+          console.log('获取签证列表失败，但不影响护照详情显示')
         })
         .finally(() => {
           visaLoading.value = false
@@ -176,17 +209,102 @@ export default {
 
     // 编辑护照
     const handleEdit = () => {
-      router.push(`/customer/passport/edit/${passportInfo.id}`)
+      // 确保护照ID存在
+      if (!passportInfo.id) {
+        ElMessage.warning('护照信息不完整，无法编辑')
+        return
+      }
+      
+      console.log('编辑护照，ID:', passportInfo.id)
+      
+      // 跳转到护照编辑页面
+      router.push({
+        path: `/customer/passport/edit/${passportInfo.id}`,
+        // 添加时间戳，确保每次编辑都是唯一的
+        query: { t: Date.now() }
+      })
     }
 
     // 添加签证
     const handleAddVisa = () => {
-      router.push(`/customer/visa/create?passportId=${passportInfo.id}`)
+      // 确保护照ID存在
+      if (!passportInfo.id) {
+        ElMessage.warning('护照信息不完整，无法添加签证')
+        return
+      }
+      
+      console.log('添加签证，护照ID:', passportInfo.id)
+      
+      // 准备护照数据
+      const passportData = {
+        id: passportInfo.id,
+        name: passportInfo.name || '(未能获取客户姓名)',
+        passport_no: passportInfo.passport_no || '(未能获取护照号码)',
+        nationality: passportInfo.nationality || '(未能获取国籍)',
+        gender: passportInfo.gender,
+        birth_date: passportInfo.birth_date
+      }
+      
+      console.log('传递给签证添加页面的护照数据:', passportData)
+      
+      // 将护照数据编码并添加到URL中
+      const passportDataStr = encodeURIComponent(JSON.stringify(passportData))
+      
+      // 跳转到签证添加页面
+      router.push({
+        path: '/customer/visa/create',
+        query: {
+          passportId: passportInfo.id,
+          passportData: passportDataStr,
+          source: 'passport_detail', // 添加来源标记
+          t: Date.now() // 添加时间戳，确保每次添加都是唯一的
+        },
+        replace: true // 使用replace而不是push，避免在历史记录中创建多余的条目
+      })
     }
 
     // 编辑签证
     const handleEditVisa = (row) => {
-      router.push(`/customer/visa/edit/${row.id}`)
+      // 确保签证ID存在
+      if (!row || !row.id) {
+        ElMessage.warning('签证信息不完整，无法编辑')
+        return
+      }
+      
+      // 确保护照ID存在
+      if (!passportInfo.id) {
+        ElMessage.warning('护照信息不完整，无法编辑签证')
+        return
+      }
+      
+      console.log('编辑签证，签证ID:', row.id, '护照ID:', passportInfo.id)
+      
+      // 准备护照数据
+      const passportData = {
+        id: passportInfo.id,
+        name: passportInfo.name || '(未能获取客户姓名)',
+        passport_no: passportInfo.passport_no || '(未能获取护照号码)',
+        nationality: passportInfo.nationality || '(未能获取国籍)',
+        gender: passportInfo.gender,
+        birth_date: passportInfo.birth_date
+      }
+      
+      console.log('传递给签证编辑页面的护照数据:', passportData)
+      
+      // 将护照数据编码并添加到URL中
+      const passportDataStr = encodeURIComponent(JSON.stringify(passportData))
+      
+      // 跳转到签证编辑页面，同时传递护照ID和护照数据
+      router.push({
+        path: `/customer/visa/edit/${row.id}`,
+        query: {
+          passportId: passportInfo.id,
+          passportData: passportDataStr,
+          source: 'passport_detail', // 添加来源标记
+          t: Date.now() // 添加时间戳，确保每次编辑都是唯一的
+        },
+        replace: true // 使用replace而不是push，避免在历史记录中创建多余的条目
+      })
     }
 
     // 删除签证
@@ -217,11 +335,82 @@ export default {
       router.push('/customer/passport/list')
     }
 
+    // 监听路由参数变化，重新获取数据
+    watch(() => route.params.id, (newId, oldId) => {
+      // 检查是否是从签证编辑页面返回
+      const fromVisaEdit = route.meta.fromVisaEdit;
+      if (fromVisaEdit) {
+        console.log('检测到从签证编辑页面返回，跳过数据刷新');
+        // 重置标记
+        route.meta.fromVisaEdit = false;
+        return;
+      }
+      
+      // 检查当前路由是否是护照详情页
+      if (!route.path.includes('/customer/passport/detail/')) {
+        console.log('当前不是护照详情页，跳过数据刷新');
+        return;
+      }
+      
+      // 检查ID是否与当前护照ID匹配
+      if (passportInfo.id && passportInfo.id.toString() === newId.toString()) {
+        console.log('护照ID未变化，跳过数据刷新');
+        return;
+      }
+      
+      console.log('护照ID变化，重新获取数据:', newId);
+      getDetail(newId);
+    })
+
+    // 组件挂载时获取数据
     onMounted(() => {
       if (route.params.id) {
         const id = route.params.id
         getDetail(id)
-        getVisaList(id)
+      }
+    })
+
+    // 组件激活时重新获取数据
+    onActivated(() => {
+      // 检查当前路由是否是护照详情页
+      if (!route.path.includes('/customer/passport/detail/')) {
+        console.log('当前不是护照详情页，跳过数据刷新');
+        return;
+      }
+      
+      // 检查是否是从签证编辑页面返回
+      if (route.meta && route.meta.fromVisaEdit) {
+        console.log('检测到从签证编辑页面返回，跳过数据刷新');
+        // 重置标记
+        route.meta.fromVisaEdit = false;
+        
+        // 只刷新签证列表，不重新加载护照详情
+        if (passportInfo.id) {
+          getVisaList(passportInfo.id);
+        }
+        return;
+      }
+      
+      // 检查URL中是否有来源标记
+      const fromSource = sessionStorage.getItem('fromVisaEdit');
+      if (fromSource === 'true') {
+        console.log('检测到从签证编辑页面返回（通过sessionStorage），跳过数据刷新');
+        // 清除标记
+        sessionStorage.removeItem('fromVisaEdit');
+        
+        // 只刷新签证列表，不重新加载护照详情
+        if (passportInfo.id) {
+          getVisaList(passportInfo.id);
+        }
+        return;
+      }
+      
+      // 如果有护照ID参数，则刷新数据
+      if (route.params.id) {
+        console.log('护照详情页被激活，强制刷新数据:', route.params.id);
+        getDetail(route.params.id);
+      } else {
+        console.log('护照详情页被激活，但没有ID参数，无法刷新数据');
       }
     })
 

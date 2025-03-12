@@ -6,13 +6,13 @@ const { Op } = require('sequelize');
  */
 exports.getOrderItems = async (req, res) => {
   try {
-    const { order_id } = req.query;
+    const { orderId } = req.query;
     
     // 构建查询条件
     const where = {};
     
-    if (order_id) {
-      where.order_id = order_id;
+    if (orderId) {
+      where.orderId = orderId;
     }
     
     // 查询订单明细
@@ -91,10 +91,10 @@ exports.addOrderItem = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    const { order_id, product_id, product_quote_id, agent_product_price_id, quantity, unit_price, remarks } = req.body;
+    const { orderId, productId, product_quote_id, agent_product_price_id, quantity, unit_price, remarks } = req.body;
     
     // 检查订单是否存在
-    const order = await Order.findByPk(order_id);
+    const order = await Order.findByPk(orderId);
     
     if (!order) {
       await transaction.rollback();
@@ -119,7 +119,7 @@ exports.addOrderItem = async (req, res) => {
     }
     
     // 检查产品是否存在
-    const product = await Product.findByPk(product_id);
+    const product = await Product.findByPk(productId);
     
     if (!product) {
       await transaction.rollback();
@@ -153,8 +153,8 @@ exports.addOrderItem = async (req, res) => {
     
     // 创建订单明细
     const orderItem = await OrderItem.create({
-      order_id,
-      product_id,
+      orderId,
+      productId,
       product_quote_id,
       agent_product_price_id,
       quantity,
@@ -205,7 +205,7 @@ exports.updateOrderItem = async (req, res) => {
     }
     
     // 查询订单
-    const order = await Order.findByPk(orderItem.order_id);
+    const order = await Order.findByPk(orderItem.orderId);
     
     // 检查订单状态
     if (order.order_status === 'cancelled') {
@@ -278,7 +278,7 @@ exports.deleteOrderItem = async (req, res) => {
     }
     
     // 查询订单
-    const order = await Order.findByPk(orderItem.order_id);
+    const order = await Order.findByPk(orderItem.orderId);
     
     // 检查订单状态
     if (order.order_status === 'cancelled') {

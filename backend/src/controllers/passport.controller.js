@@ -6,21 +6,22 @@ const { Op } = require('sequelize');
  */
 exports.getPassports = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, nationality } = req.query;
-    const offset = (page - 1) * limit;
+    const { page_num = 1, page_size = 10, name, passport_no, nationality } = req.query;
+    const offset = (page_num - 1) * page_size;
     
     // 构建查询条件
     const where = {};
     
-    if (search) {
-      where[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { passport_no: { [Op.like]: `%${search}%` } }
-      ];
+    if (name) {
+      where.name = { [Op.like]: `%${name}%` };
+    }
+    
+    if (passport_no) {
+      where.passport_no = { [Op.like]: `%${passport_no}%` };
     }
     
     if (nationality) {
-      where.nationality = nationality;
+      where.nationality = { [Op.like]: `%${nationality}%` };
     }
     
     // 查询护照
@@ -28,13 +29,13 @@ exports.getPassports = async (req, res) => {
       where,
       order: [['created_at', 'DESC']],
       offset,
-      limit: parseInt(limit)
+      limit: parseInt(page_size)
     });
     
     return res.status(200).json({
       total: count,
-      page: parseInt(page),
-      limit: parseInt(limit),
+      page: parseInt(page_num),
+      limit: parseInt(page_size),
       data: rows
     });
   } catch (error) {

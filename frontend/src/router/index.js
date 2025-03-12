@@ -32,9 +32,60 @@ const routes = [
     ]
   },
   {
+    path: '/customer',
+    component: Layout,
+    redirect: '/customer/passport/list',
+    alwaysShow: true,
+    meta: { title: '客户管理', icon: 'el-icon-user' },
+    children: [
+      {
+        path: 'passport/list',
+        name: 'PassportList',
+        component: () => import('@/views/passport/PassportList.vue'),
+        meta: { title: '护照列表' }
+      },
+      {
+        path: 'passport/create',
+        name: 'PassportCreate',
+        component: () => import('@/views/passport/PassportForm.vue'),
+        hidden: true,
+        meta: { title: '创建护照' }
+      },
+      {
+        path: 'passport/edit/:id',
+        name: 'PassportEdit',
+        component: () => import('@/views/passport/PassportForm.vue'),
+        hidden: true,
+        meta: { title: '编辑护照' }
+      },
+      {
+        path: 'passport/detail/:id',
+        name: 'PassportDetail',
+        component: () => import('@/views/passport/PassportDetail.vue'),
+        hidden: true,
+        meta: { title: '护照详情', keepAlive: false }
+      },
+      {
+        path: 'visa/create',
+        name: 'VisaCreate',
+        component: () => import('@/views/visa/VisaForm.vue'),
+        hidden: true,
+        meta: { title: '创建签证' }
+      },
+      {
+        path: 'visa/edit/:id',
+        name: 'VisaEdit',
+        component: () => import('@/views/visa/VisaForm.vue'),
+        hidden: true,
+        meta: { title: '编辑签证' }
+      }
+    ]
+  },
+  {
     path: '/order',
     component: Layout,
     redirect: '/order/list',
+    alwaysShow: true,
     meta: { title: '订单管理', icon: 'el-icon-s-order' },
     children: [
       {
@@ -63,62 +114,40 @@ const routes = [
         component: () => import('@/views/order/OrderDetail.vue'),
         hidden: true,
         meta: { title: '订单详情' }
-      }
-    ]
-  },
-  {
-    path: '/customer',
-    component: Layout,
-    redirect: '/customer/passport/list',
-    meta: { title: '客户管理', icon: 'el-icon-user' },
-    children: [
-      {
-        path: 'passport/list',
-        name: 'PassportList',
-        component: () => import('@/views/passport/PassportList.vue'),
-        meta: { title: '护照列表' }
       },
       {
-        path: 'passport/create',
-        name: 'PassportCreate',
-        component: () => import('@/views/passport/PassportForm.vue'),
-        hidden: true,
-        meta: { title: '创建护照' }
+        path: 'invoice/list',
+        name: 'InvoiceList',
+        component: () => import('@/views/invoice/InvoiceList.vue'),
+        meta: { title: '账单列表' }
       },
       {
-        path: 'passport/edit/:id',
-        name: 'PassportEdit',
-        component: () => import('@/views/passport/PassportForm.vue'),
+        path: 'invoice/create',
+        name: 'InvoiceCreate',
+        component: () => import('@/views/invoice/InvoiceForm.vue'),
         hidden: true,
-        meta: { title: '编辑护照' }
+        meta: { title: '创建账单', activeMenu: '/order/invoice/list' }
       },
       {
-        path: 'passport/detail/:id',
-        name: 'PassportDetail',
-        component: () => import('@/views/passport/PassportDetail.vue'),
+        path: 'invoice/edit/:id',
+        name: 'InvoiceEdit',
+        component: () => import('@/views/invoice/InvoiceForm.vue'),
         hidden: true,
-        meta: { title: '护照详情' }
+        meta: { title: '编辑账单', activeMenu: '/order/invoice/list' }
       },
       {
-        path: 'visa/list',
-        name: 'VisaList',
-        component: () => import('@/views/visa/VisaList.vue'),
+        path: 'invoice/detail/:id',
+        name: 'InvoiceDetail',
+        component: () => import('@/views/invoice/InvoiceDetail.vue'),
         hidden: true,
-        meta: { title: '签证列表' }
+        meta: { title: '账单详情', activeMenu: '/order/invoice/list' }
       },
       {
-        path: 'visa/create',
-        name: 'VisaCreate',
-        component: () => import('@/views/visa/VisaForm.vue'),
+        path: 'invoice/payments/:id',
+        name: 'InvoicePayments',
+        component: () => import('@/views/invoice/InvoicePayments.vue'),
         hidden: true,
-        meta: { title: '创建签证' }
-      },
-      {
-        path: 'visa/edit/:id',
-        name: 'VisaEdit',
-        component: () => import('@/views/visa/VisaForm.vue'),
-        hidden: true,
-        meta: { title: '编辑签证' }
+        meta: { title: '支付记录', activeMenu: '/order/invoice/list' }
       }
     ]
   },
@@ -126,6 +155,7 @@ const routes = [
     path: '/product',
     component: Layout,
     redirect: '/product/list',
+    alwaysShow: true,
     meta: { title: '产品管理', icon: 'el-icon-goods' },
     children: [
       {
@@ -186,9 +216,38 @@ const routes = [
     ]
   },
   {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/list',
+    alwaysShow: true,
+    meta: { title: '用户管理', icon: 'el-icon-user' },
+    children: [
+      {
+        path: 'list',
+        name: 'UserList',
+        component: () => import('@/views/system/user/UserList.vue'),
+        meta: { title: '用户列表' }
+      },
+      {
+        path: 'role',
+        name: 'RoleList',
+        component: () => import('@/views/system/role/RoleList.vue'),
+        meta: { title: '角色管理' }
+      },
+      {
+        path: 'profile',
+        name: 'UserProfile',
+        component: () => import('@/views/system/profile/index.vue'),
+        hidden: true,
+        meta: { title: '个人信息' }
+      }
+    ]
+  },
+  {
     path: '/supplier',
     component: Layout,
     redirect: '/supplier/list',
+    alwaysShow: true,
     meta: { title: '供应商管理', icon: 'el-icon-office-building' },
     children: [
       {
@@ -218,6 +277,7 @@ const routes = [
     path: '/agent',
     component: Layout,
     redirect: '/agent/list',
+    alwaysShow: true,
     meta: { title: '代理管理', icon: 'el-icon-user' },
     children: [
       {
@@ -244,93 +304,17 @@ const routes = [
     ]
   },
   {
-    path: '/invoice',
-    component: Layout,
-    redirect: '/invoice/list',
-    meta: { title: '账单管理', icon: 'el-icon-money' },
-    children: [
-      {
-        path: 'list',
-        name: 'InvoiceList',
-        component: () => import('@/views/invoice/InvoiceList.vue'),
-        meta: { title: '账单列表' }
-      },
-      {
-        path: 'create',
-        name: 'InvoiceCreate',
-        component: () => import('@/views/invoice/InvoiceForm.vue'),
-        hidden: true,
-        meta: { title: '创建账单', activeMenu: '/invoice/list' }
-      },
-      {
-        path: 'edit/:id',
-        name: 'InvoiceEdit',
-        component: () => import('@/views/invoice/InvoiceForm.vue'),
-        hidden: true,
-        meta: { title: '编辑账单', activeMenu: '/invoice/list' }
-      },
-      {
-        path: 'detail/:id',
-        name: 'InvoiceDetail',
-        component: () => import('@/views/invoice/InvoiceDetail.vue'),
-        hidden: true,
-        meta: { title: '账单详情', activeMenu: '/invoice/list' }
-      },
-      {
-        path: 'payments/:id',
-        name: 'InvoicePayments',
-        component: () => import('@/views/invoice/InvoicePayments.vue'),
-        hidden: true,
-        meta: { title: '支付记录', activeMenu: '/invoice/list' }
-      }
-    ]
-  },
-  {
     path: '/system',
     component: Layout,
-    redirect: '/system/user',
-    meta: { title: '系统管理', icon: 'el-icon-setting' },
+    redirect: '/system/error-logs',
+    alwaysShow: true,
+    meta: { title: '系统设置', icon: 'el-icon-setting' },
     children: [
-      {
-        path: 'user',
-        name: 'UserList',
-        component: () => import('@/views/system/user/UserList.vue'),
-        meta: { title: '用户管理' }
-      },
-      {
-        path: 'role',
-        name: 'RoleList',
-        component: () => import('@/views/system/role/RoleList.vue'),
-        meta: { title: '角色管理' }
-      },
-      /* 暂时注释掉操作日志路由，等待文件创建
-      {
-        path: 'logs',
-        name: 'OperationLogs',
-        component: () => import('@/views/system/OperationLogs.vue'),
-        meta: { title: '操作日志' }
-      },
-      */
       {
         path: 'error-logs',
         name: 'ErrorLogs',
         component: () => import('@/views/system/ErrorLogs.vue'),
         meta: { title: '错误日志' }
-      },
-      /* 暂时注释掉系统配置路由，等待文件创建
-      {
-        path: 'config',
-        name: 'SystemConfig',
-        component: () => import('@/views/system/Config.vue'),
-        meta: { title: '系统配置' }
-      },
-      */
-      {
-        path: 'profile',
-        name: 'UserProfile',
-        component: () => import('@/views/system/profile/index.vue'),
-        hidden: true,
-        meta: { title: '个人信息' }
       }
     ]
   },

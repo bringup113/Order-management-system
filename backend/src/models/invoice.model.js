@@ -13,12 +13,12 @@ module.exports = (sequelize) => {
       unique: true,
       comment: '账单编号'
     },
-    passport_id: {
+    passportId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '客户ID'
     },
-    agent_id: {
+    agentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       comment: '代理ID'
@@ -45,7 +45,7 @@ module.exports = (sequelize) => {
       defaultValue: 'unpaid',
       comment: '账单状态（未支付/部分支付/已支付）'
     },
-    issue_date: {
+    issueDate: {
       type: DataTypes.DATEONLY,
       allowNull: false,
       comment: '生成日期'

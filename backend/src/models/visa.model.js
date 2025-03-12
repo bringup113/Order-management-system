@@ -10,11 +10,6 @@ module.exports = (sequelize) => {
     passport_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      comment: '护照ID'
-    },
-    passportId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
       comment: '护照ID（关联字段）'
     },
     visa_type: {
@@ -43,7 +38,7 @@ module.exports = (sequelize) => {
       comment: '入境次数（单次/多次）'
     },
     status: {
-      type: DataTypes.ENUM('valid', 'expired', 'expiring_soon'),
+      type: DataTypes.ENUM('valid', 'expired', 'expiring'),
       allowNull: false,
       defaultValue: 'valid',
       comment: '签证状态（有效/过期/即将过期）'

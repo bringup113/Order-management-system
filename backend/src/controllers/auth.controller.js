@@ -111,7 +111,7 @@ exports.getCurrentUser = async (req, res) => {
 
     // 查找用户
     const user = await User.findByPk(userId, {
-      attributes: ['id', 'username', 'name', 'role', 'status', 'last_login_time', 'created_at', 'updated_at']
+      attributes: ['id', 'username', 'name', 'role', 'status', 'last_login_time', 'createdAt', 'updatedAt']
     });
 
     if (!user) {

@@ -21,16 +21,11 @@ const sequelize = new Sequelize(
       underscored: false,
       freezeTableName: false,
       charset: 'utf8mb4',
-      dialectOptions: {
-        collate: 'utf8mb4_unicode_ci',
-        charset: 'utf8mb4'
-      },
       timestamps: true
     },
     timezone: '+08:00', // 东八区
     dialectOptions: {
       charset: 'utf8mb4',
-      collate: 'utf8mb4_unicode_ci',
       supportBigNumbers: true,
       bigNumberStrings: true
     }
@@ -66,8 +61,8 @@ Role.belongsToMany(Permission, { through: 'RolePermissions', foreignKey: 'roleId
 Permission.belongsToMany(Role, { through: 'RolePermissions', foreignKey: 'permissionId' });
 
 // 护照和签证的一对多关系
-Passport.hasMany(Visa, { foreignKey: 'passportId', as: 'visas' });
-Visa.belongsTo(Passport, { foreignKey: 'passportId', as: 'passport' });
+Passport.hasMany(Visa, { foreignKey: 'passport_id', as: 'visas' });
+Visa.belongsTo(Passport, { foreignKey: 'passport_id', as: 'passport' });
 
 // 产品和产品报价的一对多关系
 Product.hasMany(ProductQuote, { foreignKey: 'productId', as: 'quotes' });

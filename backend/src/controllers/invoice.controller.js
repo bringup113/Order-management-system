@@ -20,15 +20,15 @@ exports.getInvoices = async (req, res) => {
     
     // 日期范围查询
     if (startDate && endDate) {
-      whereClause.created_at = {
+      whereClause.createdAt = {
         [Op.between]: [new Date(startDate), new Date(endDate)]
       };
     } else if (startDate) {
-      whereClause.created_at = {
+      whereClause.createdAt = {
         [Op.gte]: new Date(startDate)
       };
     } else if (endDate) {
-      whereClause.created_at = {
+      whereClause.createdAt = {
         [Op.lte]: new Date(endDate)
       };
     }
@@ -56,7 +56,7 @@ exports.getInvoices = async (req, res) => {
       include: includeOptions,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       distinct: true
     });
     

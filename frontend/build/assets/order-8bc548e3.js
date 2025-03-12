@@ -1,0 +1,1 @@
+import{U as e}from"./index-518491b2.js";function o(r){return e({url:"/orders",method:"get",params:r})}function d(r){return e({url:`/orders/${r}`,method:"get"})}function n(r){return e({url:"/orders",method:"post",data:r})}function s(r){return e({url:`/orders/${r}`,method:"delete"})}export{d as a,n as c,s as d,o as g};

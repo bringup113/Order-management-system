@@ -11,7 +11,7 @@
           <el-input v-model="queryParams.name" placeholder="请输入客户姓名" clearable />
         </el-form-item>
         <el-form-item label="护照号码">
-          <el-input v-model="queryParams.passportNo" placeholder="请输入护照号码" clearable />
+          <el-input v-model="queryParams.passport_no" placeholder="请输入护照号码" clearable />
         </el-form-item>
         <el-form-item label="国籍">
           <el-input v-model="queryParams.nationality" placeholder="请输入国籍" clearable />
@@ -31,24 +31,18 @@
         style="width: 100%"
       >
         <el-table-column prop="name" label="客户姓名" width="120" />
-        <el-table-column prop="passportNo" label="护照号码" width="150" />
+        <el-table-column prop="passport_no" label="护照号码" width="150" />
         <el-table-column prop="nationality" label="国籍" width="120" />
         <el-table-column prop="gender" label="性别" width="80">
           <template #default="scope">
             {{ scope.row.gender === 'male' ? '男' : '女' }}
           </template>
         </el-table-column>
-        <el-table-column prop="birthDate" label="出生日期" width="120" />
-        <el-table-column prop="issueDate" label="签发日期" width="120" />
-        <el-table-column prop="expiryDate" label="有效期至" width="120" />
-        <el-table-column label="操作" width="200">
+        <el-table-column prop="birth_date" label="出生日期" width="120" />
+        <el-table-column prop="issue_date" label="签发日期" width="120" />
+        <el-table-column prop="expiry_date" label="有效期至" width="120" />
+        <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button
-              size="small"
-              type="primary"
-              @click="handleEdit(scope.row)"
-              >编辑</el-button
-            >
             <el-button
               size="small"
               type="success"
@@ -81,7 +75,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPassportList, deletePassport } from '@/api/passport'
@@ -97,7 +91,7 @@ export default {
 
     const queryParams = reactive({
       name: '',
-      passportNo: '',
+      passport_no: '',
       nationality: '',
       pageNum: 1,
       pageSize: 10
@@ -130,7 +124,7 @@ export default {
     // 重置查询
     const resetQuery = () => {
       queryParams.name = ''
-      queryParams.passportNo = ''
+      queryParams.passport_no = ''
       queryParams.nationality = ''
       queryParams.pageNum = 1
       getList()
@@ -139,11 +133,6 @@ export default {
     // 新增护照
     const handleCreate = () => {
       router.push('/customer/passport/create')
-    }
-
-    // 编辑护照
-    const handleEdit = (row) => {
-      router.push(`/customer/passport/edit/${row.id}`)
     }
 
     // 查看详情
@@ -190,6 +179,12 @@ export default {
       getList()
     })
 
+    // 添加activated钩子，确保从其他页面返回时刷新数据
+    onActivated(() => {
+      console.log('护照列表页面被激活，刷新数据')
+      getList()
+    })
+
     return {
       loading,
       passportList,
@@ -198,7 +193,6 @@ export default {
       handleQuery,
       resetQuery,
       handleCreate,
-      handleEdit,
       handleDetail,
       handleDelete,
       handleSizeChange,

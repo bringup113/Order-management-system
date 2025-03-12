@@ -30,7 +30,7 @@ exports.getProducts = async (req, res) => {
     // 查询产品
     const { count, rows } = await Product.findAndCountAll({
       where,
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
       offset,
       limit: parseInt(limit)
     });
@@ -146,7 +146,7 @@ exports.deleteProduct = async (req, res) => {
     }
     
     // 检查是否有关联的产品报价
-    const quoteCount = await ProductQuote.count({ where: { product_id: id } });
+    const quoteCount = await ProductQuote.count({ where: { productId: id } });
     
     if (quoteCount > 0) {
       return res.error('无法删除产品，存在关联的产品报价');

@@ -73,6 +73,6 @@ export function getVisasByPassportId(passportId) {
   return request({
     url: '/visas',
     method: 'get',
-    params: { passport_id: passportId }
+    params: { passportId }
   })
 } 

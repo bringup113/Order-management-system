@@ -24,7 +24,7 @@ const config = {
   
   // 数据库配置
   database: {
-    host: process.env.DB_HOST || 'db',
+    host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 3306,
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD || 'password',
@@ -34,7 +34,7 @@ const config = {
   
   // Redis配置（用于缓存和会话管理）
   redis: {
-    host: process.env.REDIS_HOST || 'redis',
+    host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
   },
   

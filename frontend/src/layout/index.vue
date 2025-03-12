@@ -88,9 +88,12 @@ export default {
 
     // 获取路由
     const routes = computed(() => {
-      return router.options.routes.filter(route => {
+      console.log('Router options:', router.options.routes)
+      const filteredRoutes = router.options.routes.filter(route => {
         return route.path !== '/login' && route.path !== '/404'
       })
+      console.log('Filtered routes:', filteredRoutes)
+      return filteredRoutes
     })
 
     // 获取侧边栏状态
